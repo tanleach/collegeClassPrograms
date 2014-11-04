@@ -3,7 +3,7 @@
  * word has been seen.  We define 'word' as being delimited by whitespace, no leading or
  * trailing punctuation.
  *
- * @author Marty Gilbert
+ * @author Tanner Leach
  *
  */
 public class Word{
