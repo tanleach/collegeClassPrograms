@@ -3,7 +3,7 @@ import java.util.*;
  * WOOF -- Words Occurring Often in Files Tracks the number of times each word
  * occurs in a text file
  * 
- * @author Marty Gilbert
+ * @author Tanner Leach
  * 
  */
 public class WOOF {
