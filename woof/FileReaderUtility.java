@@ -5,7 +5,7 @@ import java.util.*;
  * This class will be a utility for the WOOF project, making it easy to read the
  * contents of a file
  * 
- * @author Marty Gilbert
+ * @author Tanner Leach
  * 
  */
 public class FileReaderUtility {
