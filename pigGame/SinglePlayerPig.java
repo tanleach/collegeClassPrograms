@@ -7,37 +7,45 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class SinglePlayerPig {
+    //Global to keep track of the current roll
     private int rollVall;
+    //Dice objec tto be rolled
+    private Dice stopDropAnd;
 
+    //Static messages
     public static final String CT = "Current Turn: ";
     public static final String STATS_HEADER =
                                     String.format("%-12s%4s",
                                         "<HTML><U>NAME</U></HTML>",
                                         "<HTML><U>SCORE</U></HTML>");
+
+    //Holds the current player (neccessary for multiplayer)
     private Player currentPlayer;
 
+
     private JFrame gameFrame;
+    //seperate window to not clutter up the game frame.
     private JFrame statsFrame;
+
+
     private JPanel gamePanel;
 
+    //Game control buttons
     private JButton     rollButton;
     private JButton     bankButton;
-    private JLabel      currScoreField;
-    private JPanel      statsPanel;
 
+    //Text that is continuously updated.
+    private JLabel currScoreField;
     private JLabel nameField;
     private JLabel scoreField;
     private JTextArea narratorText;
 
+    //
     private ArrayList<Image> diceImages;
     private Image bankIcon;
 
-    private Dice stopDropAnd;
-
     private JLabel playerNameStats;
     private JLabel playerScoreStats;
-    
-    private Timer timer;
 
     public static void main(String[] args){
         SinglePlayerPig spp = new SinglePlayerPig();
@@ -131,6 +139,7 @@ public class SinglePlayerPig {
     public JMenuBar getMenuBar(){
         JMenuBar menu = new JMenuBar();
 
+        /* GAME MENU START */
         JMenu game = new JMenu("Game");
 
         JMenuItem newGame = new JMenuItem("New Game");
@@ -146,7 +155,9 @@ public class SinglePlayerPig {
                                 ActionEvent.ALT_MASK));
         game.add(newGame);
         game.add(endGame);
+        /* GAME MENU END */
 
+        /* STATS MENU START */
         JMenu stats = new JMenu("Stats");
         
         JMenuItem statWindow = new JMenuItem("Stats Window");
@@ -156,7 +167,7 @@ public class SinglePlayerPig {
         statWindow.addActionListener(new ShowStatsButtonListener());
 
         stats.add(statWindow);
-
+        /* STATS MENU END */
 
         menu.add(game);
         menu.add(stats);
@@ -165,7 +176,7 @@ public class SinglePlayerPig {
     }
 
     /*
-     * Creates the Game and Stats Panel
+     * Creates the Game
      * @return <code>JPanel</code>
      */
     public JPanel getPanels(){
@@ -178,19 +189,6 @@ public class SinglePlayerPig {
         cons.gridy = 0;
 
         tempPanel.add(getGamePanel(), cons);
-
-        /*
-         * Will make a menu option for
-         * Pop-out stats window.
-
-         cons.gridx = 1;
-         cons.gridy = 0;
-
-         statsPanel = getStatsTable();
-
-         tempPanel.add(statsPanel, cons);
-         *
-         */
 
         return tempPanel;
     }
@@ -238,7 +236,6 @@ public class SinglePlayerPig {
         scoreField = new JLabel(Integer.toString(currentPlayer.getTotalScore()));
         playerInfoPanel.add(scoreField, cons);
 
-        /* End of Current PLayer Info */
         cons.insets = new Insets(0,0,0,0);
 
         cons.gridx      = 0;
@@ -248,6 +245,7 @@ public class SinglePlayerPig {
         cons.ipadx      = 10;
         cons.ipady      = 10;
         gPanel.add(playerInfoPanel);
+        /* End of Current PLayer Info */
 
         /* Start of Roll Button */
         cons.gridx      = 0;
@@ -308,12 +306,18 @@ public class SinglePlayerPig {
         return gPanel;
     }
 
+    /*
+     * A game console that narrates the current
+     * rolls and other actions taken by players
+     * @return <code>JPanel</code> with narrator text box
+     */
     public JPanel getNarratorPanel(){
         narratorText = new JTextArea(5, 30);
         narratorText.setEditable(false);
         narratorText.setLineWrap(true);
         narratorText.setWrapStyleWord(true);
 
+        //Allows for scrolling
         JScrollPane scroller = new JScrollPane(narratorText);
         scroller.setVerticalScrollBarPolicy(
             ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -321,9 +325,9 @@ public class SinglePlayerPig {
         scroller.setHorizontalScrollBarPolicy(
             ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         */
+        //Makes sure it auto scrolls down when new line is addedd
         DefaultCaret caret = (DefaultCaret)narratorText.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-
 
         JPanel narratorPanel = new JPanel();
         narratorPanel.setLayout(new GridBagLayout());
@@ -331,21 +335,26 @@ public class SinglePlayerPig {
         GridBagConstraints cons = new GridBagConstraints();
 
         cons.gridx = cons.gridy = 0;
+        //procide some padding
         cons.insets = new Insets(15,5,0,5);
 
         narratorPanel.add(scroller, cons);
 
         return narratorPanel;
-
     }
 
     /*
-     * Sets the current score field
+     * Sets the current score field with the players current total score
      */
     public void setLabel(){
         scoreField.setText(Integer.toString(currentPlayer.getTotalScore()));
     }
 
+
+    /*
+     * Displays the winner when desired limit is reached
+     * Disables buttons
+     */
     public void gameOver(){
         bankButton.setEnabled(false);
         rollButton.setEnabled(false);
@@ -357,8 +366,10 @@ public class SinglePlayerPig {
 
     }
 
+    /*
+     * Adds the current score to players total score
+     */
     public void bankEm(){
-
         currentPlayer.addToTotalScore();
         scoreField.setText(Integer.toString(currentPlayer.getTotalScore()));
 
@@ -383,8 +394,10 @@ public class SinglePlayerPig {
         setLabel();
     }
     
+    /*
+     * Runs when you roll a one, displays a message notifying you.
+     */
     public void youPiggedOut(){
-
         narratorText.append("\n" 
                             + currentPlayer.getName() 
                             + " has pigged out...");
@@ -403,6 +416,10 @@ public class SinglePlayerPig {
         setLabel();
     }
 
+    /*
+     * Runs when RollButton is clicked.  Creats a new rollVal
+     * and sets the corresponding diceImage.
+     */
     private void newRoll(){
             int rollVal = stopDropAnd.roll();
             rollButton.setIcon(new ImageIcon(diceImages.get(rollVal)));            
@@ -424,38 +441,36 @@ public class SinglePlayerPig {
             currScoreField.setText(
                         String.valueOf(currentPlayer.getCurrScore()));
     }
+
+    /*
+     * Animating dice, stolen from Marty Gilbert
+     */
+    class AnimateDice implements Runnable{
+        public void run(){
+            for(int i = 0; i < diceImages.size() * 2; i++){
+                rollButton.setIcon(new ImageIcon(diceImages.get(i%(diceImages.size() -1))));
+                try{
+                    Thread.sleep(75);
+                }catch(Exception err){}
+            }
+
+            newRoll();
+        }
+    }
+
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+    /*                  ButtonHandlers                        */
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
     class RollButtonListener implements ActionListener{
         public void actionPerformed(ActionEvent e){
             currentPlayer.addARoll();
             bankButton.setEnabled(true);
-
             rollButton.setEnabled(false);
 
-
+            //Rolls with an animation
             Thread t = new Thread(new AnimateDice());
             t.start();
-/*
-            int rollVal = stopDropAnd.roll();
-            rollButton.setIcon(new ImageIcon(diceImages.get(rollVal)));            
-            rollButton.setEnabled(true);
-
-            narratorText.append(
-                    "\n" + currentPlayer.getName() 
-                    + " rolled a " + rollVal + ".");
-
-            if(rollVal == 1){
-                rollButton.setIcon(new ImageIcon(diceImages.get(0)));            
-                bankButton.setEnabled(false);
-                youPiggedOut();
-            }
-            else{
-                currentPlayer.addToCurrScore(rollVal);
-            }
-
-            currScoreField.setText(
-                        String.valueOf(currentPlayer.getCurrScore()));
-                        */
-            //System.err.println(statsFrame.isShowing());
         }
     }
 
@@ -495,20 +510,5 @@ public class SinglePlayerPig {
         }
     }
 
-    /*
-     * Animating dice, stolen from Marty Gilbert
-     */
-    class AnimateDice implements Runnable{
-        public void run(){
-            for(int i = 0; i < diceImages.size() * 2; i++){
-                rollButton.setIcon(new ImageIcon(diceImages.get(i%(diceImages.size() -1))));
-                try{
-                    Thread.sleep(75);
-                }catch(Exception err){}
-            }
-
-            newRoll();
-        }
-    }
 
 }
