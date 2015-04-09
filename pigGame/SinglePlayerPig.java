@@ -448,7 +448,8 @@ public class SinglePlayerPig {
     class AnimateDice implements Runnable{
         public void run(){
             for(int i = 0; i < diceImages.size() * 2; i++){
-                rollButton.setIcon(new ImageIcon(diceImages.get(i%(diceImages.size() -1))));
+                rollButton.setIcon(
+                        new ImageIcon(diceImages.get(i%(diceImages.size() -1))));
                 try{
                     Thread.sleep(75);
                 }catch(Exception err){}
@@ -459,7 +460,7 @@ public class SinglePlayerPig {
     }
 
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-    /*                  ButtonHandlers                        */
+    /*                  ActionListeners                       */
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     class RollButtonListener implements ActionListener{
@@ -505,9 +506,136 @@ public class SinglePlayerPig {
             statsFrame = new JFrame("Statistics");
             statsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-            //statsFrame.getContentPane().add(BorderLayout.CENTER, getPanels());
+
             statsFrame.setVisible(true);
         }
+    }
+
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+    /*                  ButtonListeners                       */
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+    // For when we recieve a message indicating a player has roll
+    class HandleRemotePlayerRoll implements MessageHandler{
+
+       public boolean canHandle(String messageType){
+           return messageType.equals(Constants.PLAYER_ROLL);
+       }
+
+       public void handle(String[] message){
+            message = removeComments(message);
+            //update the score board.
+       }
+    }
+
+    //Handler for sending a message to the server that I want to play
+    class HandleJoinGame implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.JOIN_GAME);
+       }
+
+       public void handle(String[] message){
+       }
+    }
+
+    //Handler for the message we receive when the game begins
+    class HandleAllPlayersInitial implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.ALL_PLAYERS_INITIAL);
+       }
+
+       public void handle(String[] message){
+       }
+    }
+    
+    //Handler for the message sent by the server saying its my turn
+    class HandleYourTurn implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.YOUR_TURN);
+       }
+
+       public void handle(String[] message){
+       }
+    }
+
+    //Handler to send the server a message about my roll
+    class HandleMyRoll implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.MY_ROLL);
+       }
+
+       public void handle(String[] message){
+       }
+    }
+
+    //Handler to process message from teh server about someone elses roll
+    class HandlePlayerRoll implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.PLAYER_ROLL);
+       }
+
+       public void handle(String[] message){
+       }
+    }
+
+    //Handler for message recieved from the server about new player
+    class HandleAddnewPlayer implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.ADD_NEW_PLAYER);
+       }
+
+       public void handle(String[] message){
+       }
+    }
+
+    //Handler for letting the serve know im done playing
+    class HandleQuitGame implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.QUIT_GAME);
+       }
+
+       public void handle(String[] message){
+       }
+    }
+
+    //Handler for message from server letting me know someones is a quitter
+    class HandleRemovePlayer implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.REMOVE_PLAYER);
+       }
+
+       public void handle(String[] message){
+       }
+    }
+
+    //Handler for message from server annoucng a players turn ended
+    class HandleTurnOver implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.PLAYER_TURN_OVER);
+       }
+
+       public void handle(String[] message){
+       }
+    }
+    
+    //Handler for message fromt he server with info to update stats.
+    class HandleTurnScore implements MessageHandler{
+
+       public boolean canHandle(String[] messageType){
+           return messageType.equals(Constants.PLAYER_TURN_SCORE);
+       }
+
+       public void handle(String[] message){
+       }
     }
 
 
