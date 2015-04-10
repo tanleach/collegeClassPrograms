@@ -395,6 +395,26 @@ public class SinglePlayerPig {
     }
     
     /*
+     * Used by the MessageHandlers.
+     * @param <code>String</code> message recieved from server
+     * @return <code>String[]</code> with one line per index of array
+     */
+    public String[] removeComments(String message){
+        String noComms = "";
+
+        Scanner s = new Scanner(message);
+        String temp = '';
+
+        while(s.hasNextLIne()){
+            temp = s.nextLine();
+            if(!temp.startsWith("#")){
+                noComms += temp + "\n";
+            }
+        }
+        s.close();
+        return noComms.split("\n");
+    }
+    /*
      * Runs when you roll a one, displays a message notifying you.
      */
     public void youPiggedOut(){
@@ -523,7 +543,6 @@ public class SinglePlayerPig {
        }
 
        public void handle(String[] message){
-            message = removeComments(message);
             //update the score board.
        }
     }
