@@ -1,7 +1,7 @@
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.*;
-import java.util.ArrayList;
+import java.util.*;
 import javax.imageio.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -14,19 +14,13 @@ public class SinglePlayerPig {
 
     //Static messages
     public static final String CT = "Current Turn: ";
-    public static final String STATS_HEADER =
-                                    String.format("%-12s%4s",
-                                        "<HTML><U>NAME</U></HTML>",
-                                        "<HTML><U>SCORE</U></HTML>");
 
     //Holds the current player (neccessary for multiplayer)
     private Player currentPlayer;
 
-
     private JFrame gameFrame;
     //seperate window to not clutter up the game frame.
     private JFrame statsFrame;
-
 
     private JPanel gamePanel;
 
@@ -40,14 +34,16 @@ public class SinglePlayerPig {
     private JLabel scoreField;
     private JTextArea narratorText;
 
-    //
     private ArrayList<Image> diceImages;
     private Image bankIcon;
 
     private JLabel playerNameStats;
     private JLabel playerScoreStats;
 
+    private Map<String, Player> playerList;
+
     public static void main(String[] args){
+
         SinglePlayerPig spp = new SinglePlayerPig();
         spp.loadGame();
     }
@@ -57,8 +53,14 @@ public class SinglePlayerPig {
      * Most of the meat happens here.
      */
     public void loadGame(){
+        playerList = new HashMap<String, Player>();
+        /* Used only for testing 
+           playerList.add(new Player());
+         */
+
         //Loads current player getting his/her name.
         currentPlayer = new Player(getPlayerName());
+        playerList.put(currentPlayer.getName(), currentPlayer);
 
         //Creates a dice objec tto be used all game.
         stopDropAnd = new Dice();
@@ -94,10 +96,10 @@ public class SinglePlayerPig {
      */
     public String getPlayerName(){
         String name = "";
-            while(name.length() < 1)
-                name = JOptionPane.showInputDialog(
-                        null, 
-                        "Enter your name, please.");
+        while(name.length() < 1)
+            name = JOptionPane.showInputDialog(
+                    null, 
+                    "Enter your name, please.");
 
         if(name == null){
             System.out.println("You have cancelled your entry. Exiting...");
@@ -146,24 +148,24 @@ public class SinglePlayerPig {
         newGame.addActionListener(new NewGameButtonListener());
         newGame.setMnemonic(KeyEvent.VK_N);
         newGame.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,
-                                ActionEvent.ALT_MASK));
- 
+                    ActionEvent.ALT_MASK));
+
         JMenuItem endGame = new JMenuItem("End Game");
         endGame.addActionListener(new EndGameButtonListener());
         endGame.setMnemonic(KeyEvent.VK_E);
         endGame.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,
-                                ActionEvent.ALT_MASK));
+                    ActionEvent.ALT_MASK));
         game.add(newGame);
         game.add(endGame);
         /* GAME MENU END */
 
         /* STATS MENU START */
         JMenu stats = new JMenu("Stats");
-        
+
         JMenuItem statWindow = new JMenuItem("Stats Window");
         statWindow.setMnemonic(KeyEvent.VK_W);
         statWindow.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
-                                ActionEvent.ALT_MASK));
+                    ActionEvent.ALT_MASK));
         statWindow.addActionListener(new ShowStatsButtonListener());
 
         stats.add(statWindow);
@@ -208,7 +210,7 @@ public class SinglePlayerPig {
         /* Start of Current Player Info */
         JPanel playerInfoPanel = new JPanel();
         playerInfoPanel.setLayout(new GridBagLayout());
-    
+
         cons.gridx      = 0;
         cons.gridy      = 0;
         JLabel nameLabel = new JLabel("Current Player:");
@@ -257,12 +259,12 @@ public class SinglePlayerPig {
 
         rollButton = new JButton();
         rollButton.setIcon(new ImageIcon(diceImages.get(0)));
-        
+
         rollButton.addActionListener(new RollButtonListener());
 
         gPanel.add(rollButton, cons);  
         /* End of Roll Button */
-        
+
         /* Start of Bank Button */
         //load "bank" icon for ./resources/
         try{
@@ -282,7 +284,7 @@ public class SinglePlayerPig {
 
         gPanel.add(bankButton, cons);  
         /* End of Bank Button */
-        
+
         /* Start of Current Score Field */
         JPanel tempPanel = new JPanel();
         tempPanel.setLayout(new GridBagLayout());
@@ -297,7 +299,7 @@ public class SinglePlayerPig {
         currScoreField = new JLabel("0");
 
         tempPanel.add(currScoreField, cons);
-        
+
         cons.gridy = 2;
         cons.gridx = 1;
 
@@ -320,11 +322,11 @@ public class SinglePlayerPig {
         //Allows for scrolling
         JScrollPane scroller = new JScrollPane(narratorText);
         scroller.setVerticalScrollBarPolicy(
-            ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         /* not sure yet if I want this in there.
-        scroller.setHorizontalScrollBarPolicy(
-            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        */
+           scroller.setHorizontalScrollBarPolicy(
+           ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+         */
         //Makes sure it auto scrolls down when new line is addedd
         DefaultCaret caret = (DefaultCaret)narratorText.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
@@ -360,9 +362,9 @@ public class SinglePlayerPig {
         rollButton.setEnabled(false);
 
         String winnerMessage = "Congratulations " + currentPlayer.getName() 
-                                + "! You are the winner!";
+            + "! You are the winner!";
         JOptionPane.showMessageDialog(null, winnerMessage,"GAME OVER!", 
-                            JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.INFORMATION_MESSAGE);
 
     }
 
@@ -379,57 +381,37 @@ public class SinglePlayerPig {
         }
 
         String bankMessage = currentPlayer.getName() + ", you just added " +
-                             currentPlayer.getCurrScore() + " to your total." + 
-                             "You now have " + currentPlayer.getTotalScore() + 
-                             " points.\n";
-        
+            currentPlayer.getCurrScore() + " to your total." + 
+            "You now have " + currentPlayer.getTotalScore() + 
+            " points.\n";
+
         currentPlayer.resetCurrScore();
 
         JOptionPane.showMessageDialog(
-                        null, bankMessage,"Well Done!", 
-                            JOptionPane.INFORMATION_MESSAGE);
+                null, bankMessage,"Well Done!", 
+                JOptionPane.INFORMATION_MESSAGE);
 
         gameFrame.setTitle( CT + currentPlayer.getName());
 
         setLabel();
     }
-    
-    /*
-     * Used by the MessageHandlers.
-     * @param <code>String</code> message recieved from server
-     * @return <code>String[]</code> with one line per index of array
-     */
-    public String[] removeComments(String message){
-        String noComms = "";
 
-        Scanner s = new Scanner(message);
-        String temp = '';
-
-        while(s.hasNextLIne()){
-            temp = s.nextLine();
-            if(!temp.startsWith("#")){
-                noComms += temp + "\n";
-            }
-        }
-        s.close();
-        return noComms.split("\n");
-    }
     /*
      * Runs when you roll a one, displays a message notifying you.
      */
     public void youPiggedOut(){
         narratorText.append("\n" 
-                            + currentPlayer.getName() 
-                            + " has pigged out...");
+                + currentPlayer.getName() 
+                + " has pigged out...");
 
         currentPlayer.addAPigOut();
 
         String pigMessage = "Sorry " + currentPlayer.getName() + 
-                            ", you have 'Pigged out'!\n";
+            ", you have 'Pigged out'!\n";
 
         JOptionPane.showMessageDialog(
-                        null, pigMessage,"Oops, Too Greedy!", 
-                            JOptionPane.INFORMATION_MESSAGE);
+                null, pigMessage,"Oops, Too Greedy!", 
+                JOptionPane.INFORMATION_MESSAGE);
 
         gameFrame.setTitle( CT + currentPlayer.getName());
 
@@ -441,25 +423,25 @@ public class SinglePlayerPig {
      * and sets the corresponding diceImage.
      */
     private void newRoll(){
-            int rollVal = stopDropAnd.roll();
-            rollButton.setIcon(new ImageIcon(diceImages.get(rollVal)));            
-            rollButton.setEnabled(true);
+        int rollVal = stopDropAnd.roll();
+        rollButton.setIcon(new ImageIcon(diceImages.get(rollVal)));            
+        rollButton.setEnabled(true);
 
-            narratorText.append(
-                    "\n" + currentPlayer.getName() 
-                    + " rolled a " + rollVal + ".");
+        narratorText.append(
+                "\n" + currentPlayer.getName() 
+                + " rolled a " + rollVal + ".");
 
-            if(rollVal == 1){
-                rollButton.setIcon(new ImageIcon(diceImages.get(0)));            
-                bankButton.setEnabled(false);
-                youPiggedOut();
-            }
-            else{
-                currentPlayer.addToCurrScore(rollVal);
-            }
+        if(rollVal == 1){
+            rollButton.setIcon(new ImageIcon(diceImages.get(0)));            
+            bankButton.setEnabled(false);
+            youPiggedOut();
+        }
+        else{
+            currentPlayer.addToCurrScore(rollVal);
+        }
 
-            currScoreField.setText(
-                        String.valueOf(currentPlayer.getCurrScore()));
+        currScoreField.setText(
+                String.valueOf(currentPlayer.getCurrScore()));
     }
 
     /*
@@ -479,6 +461,73 @@ public class SinglePlayerPig {
         }
     }
 
+    /*
+     * Adjusts player stats as well
+     * as repaints the stats panel.
+     */
+    public void updateStats(){
+        //protection if statsFrame is not showing
+        if(!statsFrame.isVisible()) return;
+
+        statsFrame.getContentPane().add(BorderLayout.CENTER, getStatsPanel());
+
+        //statsFrame.repaint();
+       // gameFrame.repaint();
+    }
+
+    public JPanel getStatsPanel(){
+        JPanel tempPanel = new JPanel();
+        tempPanel.setLayout(new GridBagLayout());
+
+        GridBagConstraints cons = new GridBagConstraints();
+
+        cons.gridx = 0;
+        cons.gridy = 0;
+
+        int n = 0;
+        for(Player player : playerList.values()){
+            cons.gridy = n;
+            cons.ipadx = 10;
+
+            cons.gridx = 0;
+            tempPanel.add(new JLabel(player.getName()), cons);
+
+            cons.gridx = 1;
+            tempPanel.add(new JLabel(Integer.toString(player.getCurrScore())), cons);
+
+            cons.gridx = 2;
+            tempPanel.add(new JLabel(Integer.toString(player.getTotalScore())), cons);
+
+            n++;
+            
+            System.err.println(player.getName());
+        }
+
+        return tempPanel;
+
+    }
+
+    /*
+     * Used by the MessageHandlers.
+     * @param <code>String</code> message recieved from server
+     * @return <code>String[]</code> with one line per index of array
+     */
+    public String[] removeComments(String message){
+        String noComms = "";
+
+        Scanner s = new Scanner(message);
+        String temp = "";
+
+        while(s.hasNextLine()){
+            temp = s.nextLine();
+            if(!temp.startsWith("#")){
+                noComms += temp + "\n";
+            }
+        }
+        s.close();
+        return noComms.split("\n");
+    }
+
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
     /*                  ActionListeners                       */
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -494,6 +543,13 @@ public class SinglePlayerPig {
             t.start();
         }
     }
+    /*
+     * Finds the product of 4 in a row
+     * to either the left or right
+     * @param int row representing postion in grid[].
+     * @param int col representing postion in grid[row][]
+     * @param String op specifying either right (+), or left (-).
+     */
 
     class BankButtonListener implements ActionListener{
         public void actionPerformed(ActionEvent e){
@@ -506,8 +562,8 @@ public class SinglePlayerPig {
     class NewGameButtonListener implements ActionListener{
         public void actionPerformed(ActionEvent e){
             narratorText.append("\n\n************************" +
-                                 "\nStarting new game..."+
-                                 "\n************************\n");
+                    "\nStarting new game..."+
+                    "\n************************\n");
             rollButton.setEnabled(true);
             currentPlayer = new Player(getPlayerName());
             nameField.setText(currentPlayer.getName());
@@ -523,11 +579,16 @@ public class SinglePlayerPig {
 
     class ShowStatsButtonListener implements ActionListener{
         public void actionPerformed(ActionEvent e){
-            statsFrame = new JFrame("Statistics");
-            statsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            //protection if statsFrame is not created
+            if(statsFrame == null){ 
+                statsFrame = new JFrame("Statistics");
+                statsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                statsFrame.setSize(250,250);
+                statsFrame.setVisible(true);
+            }
 
-
-            statsFrame.setVisible(true);
+            updateStats();
+            statsFrame.revalidate();
         }
     }
 
@@ -538,124 +599,122 @@ public class SinglePlayerPig {
     // For when we recieve a message indicating a player has roll
     class HandleRemotePlayerRoll implements MessageHandler{
 
-       public boolean canHandle(String messageType){
-           return messageType.equals(Constants.PLAYER_ROLL);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.PLAYER_ROLL);
+        }
 
-       public void handle(String[] message){
+        public void handle(String[] message){
             //update the score board.
-       }
+        }
     }
 
     //Handler for sending a message to the server that I want to play
     class HandleJoinGame implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.JOIN_GAME);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.JOIN_GAME);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
 
     //Handler for the message we receive when the game begins
     class HandleAllPlayersInitial implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.ALL_PLAYERS_INITIAL);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.ALL_PLAYERS_INITIAL);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
-    
+
     //Handler for the message sent by the server saying its my turn
     class HandleYourTurn implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.YOUR_TURN);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.YOUR_TURN);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
 
     //Handler to send the server a message about my roll
     class HandleMyRoll implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.MY_ROLL);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.MY_ROLL);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
 
     //Handler to process message from teh server about someone elses roll
     class HandlePlayerRoll implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.PLAYER_ROLL);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.PLAYER_ROLL);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
 
     //Handler for message recieved from the server about new player
     class HandleAddnewPlayer implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.ADD_NEW_PLAYER);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.ADD_NEW_PLAYER);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
 
     //Handler for letting the serve know im done playing
     class HandleQuitGame implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.QUIT_GAME);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.QUIT_GAME);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
 
     //Handler for message from server letting me know someones is a quitter
     class HandleRemovePlayer implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.REMOVE_PLAYER);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.REMOVE_PLAYER);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
 
     //Handler for message from server annoucng a players turn ended
     class HandleTurnOver implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.PLAYER_TURN_OVER);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.PLAYER_TURN_OVER);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
-    
+
     //Handler for message fromt he server with info to update stats.
     class HandleTurnScore implements MessageHandler{
 
-       public boolean canHandle(String[] messageType){
-           return messageType.equals(Constants.PLAYER_TURN_SCORE);
-       }
+        public boolean canHandle(String messageType){
+            return messageType.equals(Constants.PLAYER_TURN_SCORE);
+        }
 
-       public void handle(String[] message){
-       }
+        public void handle(String[] message){
+        }
     }
-
-
 }
